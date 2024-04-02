@@ -35,7 +35,6 @@ public class AdminServiceImpl implements AdminService{
 
     @Override
     public List<EmployeeDto> getAllEmployee() {
-
         return EmployeeMapper.INSTANCE.toDto(employeeRepository.findAll());
     }
 
