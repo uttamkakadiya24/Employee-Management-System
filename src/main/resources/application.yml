@@ -1,0 +1,10 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/Employee
+server:
+  port: 9090
+
+logging:
+  level:
+    root: DEBUG
