@@ -41,7 +41,6 @@ public class AdminServiceImpl implements AdminService{
 
     @Override
     public EmployeeDto getEmployeeById(EmployeeDto employeeDto) {
-
         Employee employee = employeeRepository.findByIdOrThrow(authService.getLoggedInUserId());
         return EmployeeMapper.INSTANCE.toDto(employee);
     }
