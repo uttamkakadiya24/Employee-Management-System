@@ -1,9 +1,9 @@
 package com.training.ems.entities;
 
-import com.training.ems.permissions.Role;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -14,20 +14,23 @@ import java.util.Collection;
 @NoArgsConstructor
 @Builder
 @Document(collection = "manager" )
-public class Manager extends SuperDocument implements UserDetails {
+public class Manager extends UserCoreObject implements UserDetails {
 
     private String name;
     private String username;
     private String password;
-    private Role role;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.getAuthorities();
+        var authorities = new java.util.ArrayList<>(super.getPermissionList().stream()
+                .map(permission -> new SimpleGrantedAuthority(getPermissionList().toString())).toList());
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + super.getRole()));
+        return authorities;
     }
 
     @Override
     public String getUsername() {
-        return this.name;
+        return this.username;
     }
 
     @Override
