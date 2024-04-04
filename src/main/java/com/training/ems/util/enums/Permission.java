@@ -6,10 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Permission {
-
     READ,
-    CREATE,
     UPDATE,
+    CREATE,
     DELETE
-
 }

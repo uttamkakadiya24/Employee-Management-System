@@ -25,11 +25,9 @@ public class WFHServiceImpl implements WFHService{
 
     @Override
     public WfhRequestDto createWFHRequest(WfhRequestDto wfhRequestDto){
-        String loggedEmployeeId = authService.getLoggedInUserId();
         WfhRequest wfhRequest = WfhRequestMapper.INSTANCE.toEntity(wfhRequestDto);
-        if (!(wfhRequest.getEmployeeId().equals(loggedEmployeeId))){
-            throw new RuntimeException("Only the loggedIn employee who created the request");
-        }
+        authService.checkValidLoggedUser(wfhRequest.getEmployeeId());
+
         wfhRequest.setStatus(StatusType.PENDING);
         wfhRequestRepository.save(wfhRequest);
         return WfhRequestMapper.INSTANCE.toDto(wfhRequest);
@@ -37,13 +35,10 @@ public class WFHServiceImpl implements WFHService{
 
     @Override
     public WfhRequestDto approveWfhRequest(String managerId, String requestId) {
-        String loggedManagerId = authService.getLoggedInUserId();
         WfhRequest wfhRequest = wfhRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request is NOT Found"));
 
-        if (!(wfhRequest.getManagerId().equals(loggedManagerId))){
-            throw new RuntimeException("Only the loggedIn manager who can approve it");
-        }
+        authService.checkValidLoggedUser(wfhRequest.getManagerId());
 
         if (wfhRequest.getStatus().equals(StatusType.APPROVED)){
             throw  new IllegalArgumentException("Request is already APPROVED");
@@ -57,13 +52,10 @@ public class WFHServiceImpl implements WFHService{
 
     @Override
     public WfhRequestDto rejectWfhRequest(String managerId, String requestId) {
-        String loggedManagerId = authService.getLoggedInUserId();
         WfhRequest wfhRequest = wfhRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request is NOT Found"));
 
-        if (!(wfhRequest.getManagerId().equals(loggedManagerId))){
-            throw new RuntimeException("Only the loggedIn manager who can reject it");
-        }
+        authService.checkValidLoggedUser(wfhRequest.getManagerId());
 
         if (wfhRequest.getStatus().equals(StatusType.REJECTED)){
             throw  new IllegalArgumentException("Request is already REJECTED");
