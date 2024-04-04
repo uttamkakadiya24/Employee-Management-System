@@ -10,10 +10,9 @@ public interface AdminService {
 
     AdminDto registerAdmin(AdminDto adminDto);
     List<EmployeeDto> getAllEmployee();
-    EmployeeDto getEmployeeById(EmployeeDto employeeDto);
+    EmployeeDto getEmployeeById(String employeeId);
 
      void deleteEmployee(String employeeId);
-//    List<LeaveRequest> getLeaveRequest(String adminId);
-//    List<WfhRequest> getWorkFromHomeRequest(String adminId);
+
 
 }

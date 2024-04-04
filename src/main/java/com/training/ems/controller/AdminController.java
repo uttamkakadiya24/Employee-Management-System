@@ -23,7 +23,9 @@ public class AdminController {
     private final PeripheralService peripheralService;
 
     @PostMapping("/admin-signup")
-    public ResponseEntity<AdminDto> registerAdmin(@RequestBody AdminDto adminDto) {
+    public ResponseEntity<AdminDto> registerAdmin(
+            @RequestBody AdminDto adminDto
+    ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminService.registerAdmin(adminDto));
     }
 
@@ -35,8 +37,10 @@ public class AdminController {
 
     @PreAuthorize("hasPermission('ADMIN','READ')")
     @GetMapping("/employee-id/{id}")
-    public ResponseEntity<EmployeeDto> getEmployeeById(@RequestBody EmployeeDto employeeDto) {
-        return ResponseEntity.ok().body(adminService.getEmployeeById(employeeDto));
+    public ResponseEntity<EmployeeDto> getEmployeeById(
+            String employeeId
+    ) {
+        return ResponseEntity.ok().body(adminService.getEmployeeById(employeeId));
     }
 
     @PreAuthorize("hasPermission('ADMIN','READ')")
@@ -47,7 +51,9 @@ public class AdminController {
 
     @PreAuthorize("hasPermission('ADMIN','DELETE')")
     @DeleteMapping("/delete/employee-id/{id}")
-    public HttpStatus deleteEmployee(@PathVariable String id){
+    public HttpStatus deleteEmployee(
+            @PathVariable String id
+    ){
         adminService.deleteEmployee(id);
         return HttpStatus.OK;
     }
@@ -60,8 +66,10 @@ public class AdminController {
 
     @PreAuthorize("hasPermission('ADMIN','CREATE')")
     @GetMapping("/request/purchase/approve/manager-id/{managerId}/request-id/{requestId}")
-    public PurchaseDto approvePurchaseRequest(@PathVariable("managerId") String managerId,
-                                              @PathVariable("requestId") String requestId) {
+    public PurchaseDto approvePurchaseRequest(
+            @PathVariable("managerId") String managerId,
+            @PathVariable("requestId") String requestId
+    ) {
         return peripheralService.approvePurchaseRequest(managerId,requestId );
     }
 
