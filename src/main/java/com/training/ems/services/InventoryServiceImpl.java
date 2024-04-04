@@ -26,14 +26,10 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public InventoryDto addItemToInventory(InventoryDto inventoryDto) {
 
-        String loggedAdminId = authService.getLoggedInUserId();
-
         Inventory inventory = InventoryMapper.INSTANCE.toEntity(inventoryDto);
         Optional<Inventory> checkInInventory = checkInInventoryByInventoryType(inventory.getInventoryType());
 
-        if (!(inventory.getManagerId().equals(loggedAdminId))){
-            throw new RuntimeException("Only the manager who created the inventory request can approve it");
-        }
+        authService.checkValidLoggedUser(inventory.getManagerId());
 
         if (checkInInventory.isPresent()){
             Inventory existingInventory = checkInInventory.get();

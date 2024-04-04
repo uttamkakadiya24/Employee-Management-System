@@ -26,26 +26,20 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
 
     @Override
     public LeaveRequestDto createLeaveRequest(LeaveRequestDto leaveRequestDto){
-        String loggedEmployeeId = authService.getLoggedInUserId();
         LeaveRequest leaveRequest = LeaveRequestMapper.INSTANCE.toEntity(leaveRequestDto);
-        if (!(leaveRequest.getEmployeeId().equals(loggedEmployeeId))){
-            throw new RuntimeException("Only the loggedIn employee created the leave request ");
-        }
+        authService.checkValidLoggedUser(leaveRequest.getEmployeeId());
+
         leaveRequest.setStatus(StatusType.PENDING);
         leaveRequestRepository.save(leaveRequest);
-
         return LeaveRequestMapper.INSTANCE.toDto(leaveRequest);
     }
 
     @Override
     public LeaveRequestDto approveLeaveRequest(String managerId, String requestId){
-        String loggedManagerId = authService.getLoggedInUserId();
         LeaveRequest leaveRequest = leaveRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request is Not Found"));
 
-        if (!(leaveRequest.getManagerId().equals(loggedManagerId))){
-            throw new RuntimeException("Only the loggedIn manager who can approve the leave request ");
-        }
+        authService.checkValidLoggedUser(leaveRequest.getManagerId());
 
         if (leaveRequest.getStatus().equals(StatusType.APPROVED)){
             throw  new IllegalArgumentException("Request is already APPROVED");
@@ -59,14 +53,11 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
 
     @Override
     public LeaveRequestDto rejectLeaveRequest(String managerId, String requestId){
-        String loggedManagerId = authService.getLoggedInUserId();
 
         LeaveRequest leaveRequest = leaveRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request is Not Found"));
 
-        if (!(leaveRequest.getManagerId().equals(loggedManagerId))){
-            throw new RuntimeException("Only the loggedIn manager who can reject the leave request ");
-        }
+        authService.checkValidLoggedUser(leaveRequest.getManagerId());
 
         if (leaveRequest.getStatus().equals(StatusType.REJECTED)){
             throw  new IllegalArgumentException("Request is already REJECTED");

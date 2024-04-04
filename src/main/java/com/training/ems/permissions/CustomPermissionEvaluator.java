@@ -1,66 +1,37 @@
 package com.training.ems.permissions;
 
-import lombok.AllArgsConstructor;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-@AllArgsConstructor
+@Service
 public class CustomPermissionEvaluator implements PermissionEvaluator {
 
-    private final RolePermissionService rolePermissionService;
+    private final Map<String, PermissionEvaluator> evaluatorMap = new HashMap<>();
+
+    public void addEvaluator(String targetType, PermissionEvaluator evaluator){
+        evaluatorMap.put(targetType, evaluator);
+    }
+
     @Override
-    public boolean hasPermission(Authentication auth, Object target, Object permission) {
-        if (auth == null || target == null || !(permission instanceof String)) {
-            return false;
+    public boolean hasPermission(Authentication auth, Object targetDomainObject, Object permission) {
+//        Object loggedInUser = auth.getPrincipal();
+
+        if (!(evaluatorMap.containsKey(targetDomainObject.toString()))) {
+            throw new IllegalArgumentException("target domain object not having evaluator");
         }
-        if (!(target instanceof String)) {
-            return false;
-        }
-        return hasPrivilege(auth, (String) target,permission.toString().toUpperCase());
+        return evaluatorMap
+                .get(targetDomainObject.toString())
+                .hasPermission(auth,targetDomainObject,permission);
     }
 
     @Override
     public boolean hasPermission(Authentication auth, Serializable targetId, String targetType, Object permission) {
-        if ((auth == null) || (targetId == null) || (targetType == null) || (!(permission instanceof String))) {
-            return false;
-        }
-        return hasPrivilege(auth, targetType.toUpperCase(),permission.toString().toUpperCase());
+        return evaluatorMap.get(targetType).hasPermission(auth,targetId,targetType,permission);
     }
 
-    private boolean hasPrivilege(Authentication auth, String target, String permission) {
-
-        var rolePermissions = rolePermissionService.getPermission(extractRoles(auth),target);
-
-        if (rolePermissions.isEmpty()) {
-            return false;
-        }
-
-        for (RolePermission rolePermission : rolePermissions) {
-            var isGranted = switch (permission) {
-
-                case "READ" :
-                    yield rolePermission.getRead();
-                case "CREATE" :
-                    yield rolePermission.getCreate();
-                case "UPDATE" :
-                    yield rolePermission.getUpdate();
-                case "DELETE" :
-                    yield rolePermission.getDelete();
-                default:
-                    yield false;
-            };
-            if (Boolean.TRUE.equals(isGranted)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private List<String> extractRoles(Authentication auth) {
-        return auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-    }
 }

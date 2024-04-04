@@ -5,7 +5,7 @@ import com.training.ems.dto.EmployeeDto;
 public interface EmployeeService {
 
 //    EmployeeDto createEmployee(EmployeeDto employeeDto );
-    EmployeeDto updateEmployee( String username,EmployeeDto employeeDto);
+    EmployeeDto updateEmployee(EmployeeDto employeeDto);
     EmployeeDto registerEmployee(EmployeeDto employeeDto);
 
 }

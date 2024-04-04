@@ -35,11 +35,9 @@ public class PeripheralServiceImpl implements PeripheralService{
 
     @Override
     public PeripheralRequestDto createPeripheralRequest(PeripheralRequestDto peripheralRequestDto) {
-        String loggedEmployeeId = authService.getLoggedInUserId();
         PeripheralRequest peripheralRequest = PeripheralRequestMapper.INSTANCE.toEntity(peripheralRequestDto);
-        if (!(peripheralRequest.getEmployeeId().equals(loggedEmployeeId))){
-            throw new RuntimeException("Only LoggedIn Employee create the peripheral Request");
-        }
+
+        authService.checkValidLoggedUser(peripheralRequest.getEmployeeId());
 
         Integer quantityInInventory = inventoryService
             .checkInInventoryByInventoryType(peripheralRequest.getInventoryType())
@@ -60,39 +58,12 @@ public class PeripheralServiceImpl implements PeripheralService{
         return PeripheralRequestMapper.INSTANCE.toDto(peripheralRequest);
     }
 
-//    private Integer checkInInventory(PeripheralRequest peripheralRequest, Inventory inventory){
-//
-//
-//        return inventoryRepository.findByInventoryType(peripheralRequest.getInventoryType())
-//                .map(Inventory::getQuantity)
-//                .orElse(0);
-//
-//
-////        return inventoryList.stream()
-////                .filter(inventoryItem -> inventoryItem
-//                         .getInventoryType().equals(peripheralRequest.getInventoryType()))
-////                .findFirst()
-////                .map(Inventory::getQuantity).orElse(0);
-//
-////        for (Inventory inventoryItem : inventoryList) {
-////            InventoryType inventoryType = peripheralRequest.getInventoryType();
-////            if (inventoryItem.getInventoryType().equals(peripheralRequest.getInventoryType())) {
-////                if (inventoryItem.getQuantity() >= peripheralRequest.getQuantity()) {
-////                    return inventoryItem.getQuantity();
-////                }
-////            }
-////        }
-////        return 0;
-//    }
-
     @Override
     public PeripheralRequestDto approvePeripheralRequest(String managerId,String employeeId,String requestId){
-        String loggedManagerId = authService.getLoggedInUserId();
 
         PeripheralRequest peripheralRequest = peripheralRepository.findByIdOrThrow(requestId);
-        if (!(peripheralRequest.getManagerId().equals(loggedManagerId))){
-            throw new RuntimeException("Only the loggedIn manager who can approve the peripheral request");
-        }
+
+        authService.checkValidLoggedUser(peripheralRequest.getManagerId());
 
         if (peripheralRequest.getStatus().equals(StatusType.ALLOCATED)){
             throw  new IllegalArgumentException("Requested Peripheral is already Allocated to this "+employeeId);
@@ -108,13 +79,10 @@ public class PeripheralServiceImpl implements PeripheralService{
 
     @Override
     public PeripheralRequestDto rejectPeripheralRequest(String managerId, String employeeId, String requestId){
-
-        String loggedManagerId = authService.getLoggedInUserId();
         PeripheralRequest peripheralRequest = peripheralRepository.findByIdOrThrow(requestId);
 
-        if (!(peripheralRequest.getManagerId().equals(loggedManagerId))){
-            throw new RuntimeException("Only the logged manager who can reject the peripheral request");
-        }
+        authService.checkValidLoggedUser(peripheralRequest.getManagerId());
+
         if (peripheralRequest.getStatus().equals(StatusType.REJECTED)){
             throw  new IllegalArgumentException("Request is already REJECTED");
         }
@@ -154,13 +122,9 @@ public class PeripheralServiceImpl implements PeripheralService{
 
     @Override
     public PurchaseDto approvePurchaseRequest(String managerId, String requestId) {
-        String loggedAdminId = authService.getLoggedInUserId();
-
         Purchase purchase = purchaseRepository.findByIdOrThrow(requestId);
 
-        if (!(purchase.getAdminId().equals(loggedAdminId))){
-            throw new RuntimeException("Only the loggedIn Admin can approve the purchase request ");
-        }
+        authService.checkValidLoggedUser(purchase.getAdminId());
 
         if (purchase.getStatus().equals(StatusType.APPROVED)){
             throw  new IllegalArgumentException("Request is already APPROVED");
@@ -175,12 +139,9 @@ public class PeripheralServiceImpl implements PeripheralService{
 
     @Override
     public PurchaseDto rejectPurchaseRequest(String managerId, String requestId) {
-        String loggedAdminId = authService.getLoggedInUserId();
         Purchase purchase = purchaseRepository.findByIdOrThrow(requestId);
 
-        if (!(purchase.getAdminId().equals(loggedAdminId))){
-            throw new RuntimeException("Only the loggedIn Admin can reject the purchase request");
-        }
+        authService.checkValidLoggedUser(purchase.getAdminId());
 
         if (purchase.getStatus().equals(StatusType.REJECTED)){
             throw  new IllegalArgumentException("Request is already REJECTED");

@@ -23,52 +23,28 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public AttendanceDto employeeEntry(String employeeId) {
-
-        String loggedEmployeeId = authService.getLoggedInUserId();
-
-        if (!(employeeId.equals(loggedEmployeeId))) {
-            throw new RuntimeException("Entry only by logged in employee");
-        }
-
-        validateWithLastEntry(employeeId, AttendanceType.IN);
-
-        Attendance attendance = new Attendance();
-        attendance.setEmployee(
-            employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("Employee Not Found By Id :"+employeeId))
-        );
-
-        attendance.setType(AttendanceType.IN);
-        attendance.setDate(new Date());
-        attendance = attendanceRepository.save(attendance);
-
-        return AttendanceMapper.INSTANCE.toDto(attendance);
+        authService.checkValidLoggedUser(employeeId);
+        validateWithLastEntry(employeeId, AttendanceType.OUT);
+        return entryExitLogic(employeeId,AttendanceType.IN);
     }
 
     @Override
     public AttendanceDto employeeExit(String employeeId) {
+        authService.checkValidLoggedUser(employeeId);
+        validateWithLastEntry(employeeId, AttendanceType.IN);
+        return entryExitLogic(employeeId,AttendanceType.OUT);
+    }
 
-        String loggedEmployeeId = authService.getLoggedInUserId();
-
-        if (!(employeeId.equals(loggedEmployeeId))) {
-            throw new RuntimeException("Exit only by logged in employee");
-        }
-
-        validateWithLastEntry(employeeId, AttendanceType.OUT);
-
+    private AttendanceDto entryExitLogic(String employeeId, AttendanceType attendanceType) {
         Attendance attendance = new Attendance();
         attendance.setEmployee(
                 employeeRepository.findById(employeeId)
                         .orElseThrow(() -> new RuntimeException("Employee Not Found By Id :"+employeeId))
         );
-
-        attendance.setType(AttendanceType.OUT);
+        attendance.setType(attendanceType);
         attendance.setDate(new Date());
-
-        
-        attendance = attendanceRepository.save(attendance);
-
-        return AttendanceMapper.INSTANCE.toDto(attendance);
+        Attendance employee = attendanceRepository.save(attendance);
+        return AttendanceMapper.INSTANCE.toDto(employee);
     }
 
     private void validateWithLastEntry(String employeeId, AttendanceType type) {
