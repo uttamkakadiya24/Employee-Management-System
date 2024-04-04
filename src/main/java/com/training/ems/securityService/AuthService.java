@@ -24,7 +24,8 @@ public class AuthService {
 
     public void doAuthenticate(String username, String password) {
 
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, password);
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(username, password);
         try {
             authManager.authenticate(authentication);
 
@@ -50,6 +51,11 @@ public class AuthService {
         else if (user instanceof Manager) { return ((Manager) user).getId(); }
 
         throw new RuntimeException("User is Not Recognised");
+    }
+    public void checkValidLoggedUser(String userId) {
+        if (!(userId.equals(getLoggedInUserId()))) {
+            throw new RuntimeException("Access Only By LoggedIn User");
+        }
     }
 
 }

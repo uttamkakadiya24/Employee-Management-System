@@ -8,8 +8,8 @@ import com.training.ems.entities.Admin;
 import com.training.ems.entities.Employee;
 import com.training.ems.mapper.AdminMapper;
 import com.training.ems.mapper.EmployeeMapper;
-import com.training.ems.permissions.Role;
 import com.training.ems.securityService.AuthService;
+import com.training.ems.util.enums.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,14 +46,8 @@ public class AdminServiceImpl implements AdminService{
 
     @Override
     public void  deleteEmployee(String employeeId) {
-
-        String loggedAdminId = authService.getLoggedInUserId();
-
-        if (!(employeeId.equals(loggedAdminId))){
-            throw new RuntimeException("delete only by loggedIn ADMIN");
-        }
+        authService.checkValidLoggedUser(employeeId);
         employeeRepository.deleteById(employeeId);
-
     }
 
 }

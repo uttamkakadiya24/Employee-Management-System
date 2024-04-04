@@ -4,7 +4,7 @@ import com.training.ems.dao.ManagerRepository;
 import com.training.ems.dto.ManagerDto;
 import com.training.ems.entities.Manager;
 import com.training.ems.mapper.ManagerMapper;
-import com.training.ems.permissions.Role;
+import com.training.ems.util.enums.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
