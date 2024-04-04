@@ -1,6 +1,7 @@
 package com.training.ems.dto;
 
 import com.training.ems.entities.PeripheralRequest;
+import com.training.ems.entities.UserCoreObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class EmployeeDto {
+public class EmployeeDto extends UserCoreObject {
 
     private String name;
     private String username;
